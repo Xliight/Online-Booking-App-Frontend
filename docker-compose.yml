@@ -26,7 +26,7 @@ services:
         - SPRING_DATASOURCE_PASSWORD=root1
         - SPRING_JPA_HIBERNATE_DDL_AUTO=update
 
-    image: authh1
+    image: apires
     ports:
       - "8080:8080"
 
