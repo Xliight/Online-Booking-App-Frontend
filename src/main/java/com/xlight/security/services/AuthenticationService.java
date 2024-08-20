@@ -1,5 +1,6 @@
 package com.xlight.security.services;
 
+import com.xlight.security.Exceptions.CustomExceptions;
 import com.xlight.security.config.JwtService;
 import com.xlight.security.model.Token;
 import com.xlight.security.Repository.TokenRepository;
@@ -20,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -30,22 +32,37 @@ public class AuthenticationService {
   private final JwtService jwtService;
   private final AuthenticationManager authenticationManager;
 
+  private boolean isValidPassword(String password) {
+    String passwordPattern = "^(?=.*[A-Z])(?=.*[@#$%^&+=!]).{8,}$";
+    return Pattern.compile(passwordPattern).matcher(password).matches();
+  }
+
   public AuthenticationResponse register(RegisterRequest request) {
+    if (repository.existsByEmail(request.getEmail())) {
+      throw new CustomExceptions.UsernameAlreadyExistsException("Email already exists.");
+    }
+
+    // Password strength validation
+    if (!isValidPassword(request.getPassword())) {
+      throw new CustomExceptions.WeakPasswordException("Password must be at least 8 characters long, contain at least one capital letter, and one special character.");
+    }
+
     var user = User.builder()
-        .firstname(request.getFirstname())
-        .email(request.getEmail())
-        .password(passwordEncoder.encode(request.getPassword()))
-        .role(request.getRole())
-        .build();
+            .firstname(request.getFirstname())
+            .email(request.getEmail())
+            .password(passwordEncoder.encode(request.getPassword()))
+            .role(request.getRole())
+            .build();
     var savedUser = repository.save(user);
     var jwtToken = jwtService.generateToken(user);
     var refreshToken = jwtService.generateRefreshToken(user);
     saveUserToken(savedUser, jwtToken);
     return AuthenticationResponse.builder()
-        .accessToken(jwtToken)
+            .accessToken(jwtToken)
             .refreshToken(refreshToken)
-        .build();
+            .build();
   }
+
 
   public AuthenticationResponse authenticate(AuthenticationRequest request) {
     authenticationManager.authenticate(
