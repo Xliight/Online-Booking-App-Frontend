@@ -13,6 +13,16 @@ public class CustomExceptions {
             super(message);
         }
     }
+    public static class RoomNotFoundException extends RuntimeException {
+        public RoomNotFoundException(String message) {
+            super(message);
+        }
+    }
+    public static class ReservationNotFoundException extends RuntimeException {
+        public ReservationNotFoundException(String message) {
+            super(message);
+        }
+    }
 
     // Add more exceptions as needed
 }

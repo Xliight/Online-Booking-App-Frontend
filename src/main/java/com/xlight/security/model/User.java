@@ -1,8 +1,8 @@
 package com.xlight.security.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.xlight.security.enums.Role;
 import jakarta.persistence.*;
-
 import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -25,48 +25,58 @@ public class User implements UserDetails {
   @GeneratedValue
   private Integer id;
   private String firstname;
-@Column(unique = true)
+
+  @Column(unique = true)
   private String email;
-  private String password;
+
+  @JsonIgnore
+  private String password;  // Ignore password in JSON serialization
 
   @Enumerated(EnumType.STRING)
   private Role role;
 
   @OneToMany(mappedBy = "user")
+  @JsonIgnore
   private List<Token> tokens;
 
   @Override
+  @JsonIgnore  // Ignore authorities in JSON serialization
   public Collection<? extends GrantedAuthority> getAuthorities() {
-
     return List.of(new SimpleGrantedAuthority(role.name()));
   }
 
   @Override
+  @JsonIgnore  // Ignore other user details in JSON serialization
   public String getPassword() {
     return password;
   }
 
   @Override
+  @JsonIgnore
   public String getUsername() {
     return email;
   }
 
   @Override
+  @JsonIgnore
   public boolean isAccountNonExpired() {
     return true;
   }
 
   @Override
+  @JsonIgnore
   public boolean isAccountNonLocked() {
     return true;
   }
 
   @Override
+  @JsonIgnore
   public boolean isCredentialsNonExpired() {
     return true;
   }
 
   @Override
+  @JsonIgnore
   public boolean isEnabled() {
     return true;
   }

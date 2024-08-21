@@ -1,6 +1,8 @@
 package com.xlight.security.controllers;
 
 import com.xlight.security.Exceptions.CustomExceptions;
+import com.xlight.security.config.JwtService;
+import com.xlight.security.config.LogoutService;
 import com.xlight.security.payload.AuthenticationRequest;
 import com.xlight.security.payload.AuthenticationResponse;
 import com.xlight.security.payload.RegisterRequest;
@@ -10,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -20,6 +23,7 @@ import java.io.IOException;
 public class AuthenticationController {
 
   private final AuthenticationService service;
+  private final LogoutService logoutService;
 
 
   @PostMapping("/register")
@@ -54,5 +58,10 @@ public class AuthenticationController {
     } catch (IOException ex) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Token refresh failed.");
     }
+  }
+  @PostMapping("/logout")
+  public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+    logoutService.logout(request, response, authentication);
+    return ResponseEntity.ok("Successfully logged out");
   }
 }

@@ -26,7 +26,10 @@ services:
         - SPRING_DATASOURCE_PASSWORD=root1
         - SPRING_JPA_HIBERNATE_DDL_AUTO=update
 
-    image: xlight7/apireservationv:2.0
+    image: imag
     ports:
       - "8080:8080"
+
+
+
 

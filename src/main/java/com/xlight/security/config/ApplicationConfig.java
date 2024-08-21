@@ -1,7 +1,10 @@
 package com.xlight.security.config;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.xlight.security.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -13,6 +16,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
@@ -47,6 +53,16 @@ public class ApplicationConfig {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
+  }
+
+
+
+  @Bean
+  public Cloudinary cloudinary() {
+    return new Cloudinary(ObjectUtils.asMap(
+            "cloud_name", "dpjejwhqb",
+            "api_key", "525623845398234",
+            "api_secret", "6UyIASzb6CfeUgg8T5BE1r3ATJY"));
   }
 
 }

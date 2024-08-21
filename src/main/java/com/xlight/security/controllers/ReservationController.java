@@ -22,17 +22,18 @@ public class ReservationController {
             Reservation savedReservation = reservationService.saveReservation(reservation);
             return ResponseEntity.ok(savedReservation);
         } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error creating reservation: ");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error creating reservation: " + ex.getMessage());
         }
     }
 
-    @GetMapping("/{id}")
+
+    @GetMapping("/getReservationById/{id}")
     public ResponseEntity<?> getReservationById(@PathVariable Long id) {
         try {
             Reservation reservation = reservationService.getReservationById(id);
             return reservation != null ? ResponseEntity.ok(reservation) : ResponseEntity.notFound().build();
         } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Reservation not found: ");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Reservation not found: "+ ex.getMessage());
         }
     }
 
@@ -42,47 +43,52 @@ public class ReservationController {
             List<Reservation> reservations = reservationService.getAllReservations();
             return ResponseEntity.ok(reservations);
         } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching reservations: ");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching reservations: "+ ex.getMessage());
         }
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/getResByUserId/{userId}")
     public ResponseEntity<?> getReservationsByUserId(@PathVariable Long userId) {
         try {
             List<Reservation> reservations = reservationService.getReservationsByUserId(userId);
             return ResponseEntity.ok(reservations);
         } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching reservations for user: ");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching reservations for user: "+ ex.getMessage());
         }
     }
 
-    @GetMapping("/room/{roomId}")
+    @GetMapping("/getResByRoomId/{roomId}")
     public ResponseEntity<?> getReservationsByRoomId(@PathVariable Long roomId) {
         try {
             List<Reservation> reservations = reservationService.getReservationsByRoomId(roomId);
             return ResponseEntity.ok(reservations);
         } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching reservations for room: ");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching reservations for room: "+ ex.getMessage());
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/updateReservation/{id}")
     public ResponseEntity<?> updateReservation(@PathVariable Long id, @RequestBody Reservation reservation) {
         try {
             Reservation updatedReservation = reservationService.updateReservation(id, reservation);
             return ResponseEntity.ok(updatedReservation);
         } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error updating reservation: ");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error updating reservation: "+ ex.getMessage());
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/deleteReservation/{id}")
     public ResponseEntity<?> deleteReservation(@PathVariable Long id) {
         try {
             reservationService.deleteReservation(id);
-            return ResponseEntity.noContent().build();
+            // Return a success message when deletion is successful
+            return ResponseEntity.ok("Reservation with ID " + id + " has been successfully deleted.");
         } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error deleting reservation: ");
+            // Extract message from exception
+            String errorMessage = ex.getMessage();
+            // Return a detailed error response
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error deleting reservation: " + errorMessage);
         }
     }
+
 }
