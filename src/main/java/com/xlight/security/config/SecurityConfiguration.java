@@ -1,14 +1,22 @@
 package com.xlight.security.config;
 
+import com.xlight.security.services.CustomOAuth2LoginSuccessHandler;
+import com.xlight.security.services.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -41,13 +49,16 @@ public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
     private final LogoutHandler logoutHandler;
+    private final CustomOAuth2LoginSuccessHandler customOAuth2LoginSuccessHandler;
 
-
+    private final CustomOAuth2UserService customOAuth2UserService;
+    @Value("${frontend.url}")
+    private String frontendUrl;
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin("http://localhost:3000   ");
-        configuration.addAllowedOrigin("http://localhost:5173");
+        configuration.addAllowedOrigin(frontendUrl);
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("OPTIONS");
         configuration.addAllowedMethod("GET");
@@ -61,7 +72,7 @@ public class SecurityConfiguration {
         return source;
     }
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,CustomOAuth2LoginSuccessHandler successHandler) throws Exception {
         http.cors(c -> c.configurationSource(corsConfigurationSource()))
 
                 .csrf(AbstractHttpConfigurer::disable)
@@ -71,7 +82,7 @@ public class SecurityConfiguration {
                                 .anyRequest()
                                 .authenticated()
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // Use session-based authentication
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout ->
@@ -83,4 +94,5 @@ public class SecurityConfiguration {
 
         return http.build();
     }
+
 }

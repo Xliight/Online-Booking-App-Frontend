@@ -3,6 +3,7 @@ package com.xlight.security.controllers;
 import com.xlight.security.config.ApplicationAuditAware;
 import com.xlight.security.Repository.UserRepository;
 import com.xlight.security.model.User;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,7 +25,6 @@ public class DemoController {
   }
 
   @GetMapping
-  @PreAuthorize("hasAnyAuthority('ADMIN')")
   public ResponseEntity<String> sayHello() {
     try {
       Optional<Integer> userIdOpt = auditAware.getCurrentAuditor();
@@ -44,6 +44,17 @@ public class DemoController {
     } catch (Exception ex) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
               .body("An error occurred: " + ex.getMessage());
+    }
+  }
+  @GetMapping("/testgo")
+  public String displayUserInfo(HttpSession session) {
+    String name = (String) session.getAttribute("userName");
+    String email = (String) session.getAttribute("userEmail");
+
+    if (name != null && email != null) {
+      return "Welcome, " + name + "! Your email is " + email;
+    } else {
+      return "User information not available.";
     }
   }
 }
